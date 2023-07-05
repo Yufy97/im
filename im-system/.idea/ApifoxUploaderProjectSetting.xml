@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ApifoxUploaderProjectSetting">
+    <option name="apifoxAccessToken" value="APS-jU5XER81E23cCLRK4SJScVYgbqhFs9CA" />
+    <option name="apifoxApiOverwriteMode" value="覆盖所有字段" />
+    <option name="apifoxProjectIds">
+      <array>
+        <option value="# ModuleName:ProjectID" />
+        <option value="im-service:2953396,im-service" />
+      </array>
+    </option>
+    <option name="yapiTokens" value="" />
+  </component>
+</project>
