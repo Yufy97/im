@@ -1,0 +1,17 @@
+im:
+  tcpPort: 9000
+  webSocketPort: 19000
+  bossThreadSize: 1
+  workThreadSize: 8
+  heartBeatTime: 3000
+
+  redis:
+    mode: single
+    database: 0
+    password: asdfghjkl123
+    timeout: 3000
+    poolMinIdle: 8
+    poolConnTimeout: 3000
+    poolSize: 10
+    single:
+      address: 162.14.106.166:6379
