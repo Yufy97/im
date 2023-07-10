@@ -35,8 +35,7 @@ public class Constants {
         /**
          * 用户上线通知channel
          */
-        public static final String UserLoginChannel
-                = "signal/channel/LOGIN_USER_INNER_QUEUE";
+        public static final String UserLoginChannel = "signal/channel/LOGIN_USER_INNER_QUEUE";
 
 
         /**
@@ -50,7 +49,6 @@ public class Constants {
         public static final String cacheMessage = "cacheMessage";
 
         public static final String OfflineMessage = "offlineMessage";
-
         /**
          * seq 前缀
          */

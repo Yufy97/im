@@ -76,6 +76,7 @@
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-boot-starter</artifactId>
         </dependency>
+
         <dependency>
             <groupId>com.github.jeffreyning</groupId>
             <artifactId>mybatisplus-plus</artifactId>
@@ -88,6 +89,7 @@
             <artifactId>im-common</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
     </dependencies>
 
     <build>

@@ -25,11 +25,7 @@ public enum DeviceMultiLoginEnum {
     private int loginMode;
     private String loginDesc;
 
-    /**
-     * 不能用 默认的 enumType b= enumType.values()[i]; 因为本枚举是类形式封装
-     * @param ordinal
-     * @return
-     */
+
     public static DeviceMultiLoginEnum getMember(int ordinal) {
         for (int i = 0; i < DeviceMultiLoginEnum.values().length; i++) {
             if (DeviceMultiLoginEnum.values()[i].getLoginMode() == ordinal) {

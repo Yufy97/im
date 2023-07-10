@@ -25,6 +25,22 @@ public class BootStrapConfig {
         private Long heartBeatTime;
 
         private RedisConfig redis;
+
+        private Rabbitmq rabbitmq;
+
+        private ZkConfig zkConfig;
+
+        private Integer brokerId;
+
+        private Integer loginModel;
+    }
+
+    @Data
+    public static class ZkConfig {
+
+        private String zkAddr;
+
+        private Integer zkConnectTimeOut;
     }
 
     @Data
@@ -74,7 +90,22 @@ public class BootStrapConfig {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class RedisSingle {
-
         private String address;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class Rabbitmq {
+        private String host;
+
+        private Integer port;
+
+        private String virtualHost;
+
+        private String userName;
+
+        private String password;
     }
 }

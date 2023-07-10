@@ -35,6 +35,13 @@
             <artifactId>zkclient</artifactId>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>com.alibaba.nacos</groupId>-->
+<!--            <artifactId>nacos-client</artifactId>-->
+<!--        </dependency>-->
+
+
+
         <dependency>
             <groupId>com.nineSeven</groupId>
             <artifactId>im-common</artifactId>

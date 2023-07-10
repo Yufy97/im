@@ -1,6 +1,7 @@
 package com.nineSeven.server;
 
 import com.nineSeven.MessageDecoder;
+import com.nineSeven.MessageEncoder;
 import com.nineSeven.config.BootStrapConfig;
 import com.nineSeven.handler.HeartBeatHandler;
 import com.nineSeven.handler.NettyServerHandler;
@@ -43,9 +44,10 @@ public class ImServer {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new MessageDecoder());
+                        pipeline.addLast(new MessageEncoder());
                         pipeline.addLast(new IdleStateHandler(0, 0, 1));
                         pipeline.addLast(new HeartBeatHandler(config.getHeartBeatTime()));
-                        pipeline.addLast(new NettyServerHandler());
+                        pipeline.addLast(new NettyServerHandler(config.getBrokerId()));
                     }
                 }).bind(config.getTcpPort());
     }
