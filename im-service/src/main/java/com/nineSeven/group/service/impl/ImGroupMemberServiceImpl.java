@@ -1,9 +1,13 @@
 package com.nineSeven.group.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.nineSeven.ResponseVO;
+import com.nineSeven.config.AppConfig;
+import com.nineSeven.constant.Constants;
 import com.nineSeven.enums.GroupErrorCode;
 import com.nineSeven.enums.GroupMemberRoleEnum;
 import com.nineSeven.enums.GroupStatusEnum;
@@ -12,6 +16,7 @@ import com.nineSeven.exception.ApplicationException;
 import com.nineSeven.group.dao.ImGroupEntity;
 import com.nineSeven.group.dao.ImGroupMemberEntity;
 import com.nineSeven.group.dao.mapper.ImGroupMemberMapper;
+import com.nineSeven.group.model.callback.AddMemberAfterCallback;
 import com.nineSeven.group.model.req.*;
 import com.nineSeven.group.model.resp.AddMemberResp;
 import com.nineSeven.group.model.resp.GetRoleInGroupResp;
@@ -19,6 +24,8 @@ import com.nineSeven.group.service.ImGroupMemberService;
 import com.nineSeven.group.service.ImGroupService;
 import com.nineSeven.user.dao.ImUserDataEntity;
 import com.nineSeven.user.service.ImUserService;
+import com.nineSeven.utils.CallbackService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,6 +38,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ImGroupMemberServiceImpl implements ImGroupMemberService {
     @Autowired
     ImUserService imUserService;
@@ -40,6 +48,13 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 
     @Autowired
     ImGroupService imGroupService;
+
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    CallbackService callbackService;
+
 
     @Override
     public ResponseVO importGroupMember(ImportGroupMemberReq req) {
@@ -92,6 +107,7 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
             }
         }
 
+
         QueryWrapper<ImGroupMemberEntity> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("group_id", groupId)
                 .eq("app_id", appId)
@@ -134,22 +150,20 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 
         List<GroupMemberDto> memberDtos = req.getMembers();
 
-//        if(appConfig.isAddGroupMemberBeforeCallback()){
-//
-//            ResponseVO responseVO = callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.GroupMemberAddBefore
-//                    , JSONObject.toJSONString(req));
-//            if(!responseVO.isOk()){
-//                return responseVO;
-//            }
-//
-//            try {
-//                memberDtos
-//                        = JSONArray.parseArray(JSONObject.toJSONString(responseVO.getData()), GroupMemberDto.class);
-//            }catch (Exception e){
-//                e.printStackTrace();
-//                log.error("GroupMemberAddBefore 回调失败：{}",req.getAppId());
-//            }
-//        }
+        if(appConfig.isAddGroupMemberBeforeCallback()){
+
+            ResponseVO responseVO = callbackService.beforeCallback(req.getAppId(), Constants.CallbackCommand.GroupMemberAddBefore, JSONObject.toJSONString(req));
+            if(!responseVO.isOk()){
+                return responseVO;
+            }
+
+            try {
+                memberDtos = JSONArray.parseArray(JSONObject.toJSONString(responseVO.getData()), GroupMemberDto.class);
+            }catch (Exception e){
+                e.printStackTrace();
+                log.error("GroupMemberAddBefore 回调失败：{}",req.getAppId());
+            }
+        }
         ImGroupEntity group = groupResp.getData();
 
         if (!isAdmin && GroupTypeEnum.PUBLIC.getCode() == group.getGroupType()) {
@@ -186,16 +200,14 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 //        groupMessageProducer.producer(req.getOperater(), GroupEventCommand.ADDED_MEMBER, addGroupMemberPack
 //                , new ClientInfo(req.getAppId(), req.getClientType(), req.getImei()));
 //
-//        if(appConfig.isAddGroupMemberAfterCallback()){
-//            AddMemberAfterCallback dto = new AddMemberAfterCallback();
-//            dto.setGroupId(req.getGroupId());
-//            dto.setGroupType(group.getGroupType());
-//            dto.setMemberId(resp);
-//            dto.setOperater(req.getOperater());
-//            callbackService.callback(req.getAppId()
-//                    ,Constants.CallbackCommand.GroupMemberAddAfter,
-//                    JSONObject.toJSONString(dto));
-//        }
+        if(appConfig.isAddGroupMemberAfterCallback()){
+            AddMemberAfterCallback dto = new AddMemberAfterCallback();
+            dto.setGroupId(req.getGroupId());
+            dto.setGroupType(group.getGroupType());
+            dto.setMemberId(resp);
+            dto.setOperater(req.getOperater());
+            callbackService.callback(req.getAppId(), Constants.CallbackCommand.GroupMemberAddAfter, JSONObject.toJSONString(dto));
+        }
         return ResponseVO.successResponse(resp);
     }
 
@@ -311,8 +323,10 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
                 throw new ApplicationException(GroupErrorCode.THIS_OPERATE_NEED_OWNER_ROLE);
             }
         }
-        ResponseVO responseVO = this.removeGroupMember(req.getGroupId(), req.getAppId(), req.getMemberId());
-        return responseVO;
+        if(appConfig.isDeleteGroupMemberAfterCallback()){
+            callbackService.callback(req.getAppId(), Constants.CallbackCommand.GroupMemberDeleteAfter, JSONObject.toJSONString(req));
+        }
+        return this.removeGroupMember(req.getGroupId(), req.getAppId(), req.getMemberId());
     }
 
     @Override
@@ -449,5 +463,10 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
 //                    new ClientInfo(req.getAppId(),req.getClientType(),req.getImei()));
 //        }
         return ResponseVO.successResponse();
+    }
+
+    @Override
+    public List<GroupMemberDto> getGroupManager(String groupId, Integer appId) {
+        return imGroupMemberMapper.getGroupManager(groupId, appId);
     }
 }

@@ -44,7 +44,6 @@ spring:
     name: im-core
 
 
-# logger 配置
 logging:
   config: classpath:logback-spring.xml
 
@@ -54,14 +53,14 @@ server:
 appConfig:
   appId: 10000
   privateKey: 123456
-  zkAddr: 127.0.0.1:2181 # zk连接地址
+  zkAddr: 162.14.106.166:2181 # zk连接地址
   zkConnectTimeOut: 50000 #zk超时时间
   imRouteWay: 1 # 路由策略1轮训 2随机 3hash
   consistentHashWay: 1 # 如果选用一致性hash的话具体hash算法 1 TreeMap 2 自定义Map
   tcpPort: 9000 # tcp端口
   webSocketPort: 19000 # webSocket端口
   needWebSocket: true #是否需要开启webSocket
-  loginModel: 1
+  loginModel: 1   #多端在线规则
   messageRecallTimeOut : 1200000000 #消息可撤回时间，单位毫秒
   #  *                多端同步模式：1 只允许一端在线，手机/电脑/web 踢掉除了本client+imel的设备
   #  *                            2 允许手机/电脑的一台设备 + web在线 踢掉除了本client+imel的非web端设备

@@ -3,18 +3,21 @@ package com.nineSeven.user.service.impl;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.nineSeven.ResponseVO;
+import com.nineSeven.config.AppConfig;
+import com.nineSeven.constant.Constants;
 import com.nineSeven.enums.DelFlagEnum;
 import com.nineSeven.enums.UserErrorCode;
+import com.nineSeven.enums.command.UserEventCommand;
 import com.nineSeven.exception.ApplicationException;
+import com.nineSeven.pack.user.UserModifyPack;
 import com.nineSeven.user.dao.ImUserDataEntity;
 import com.nineSeven.user.dao.mapper.ImUserDataMapper;
-import com.nineSeven.user.model.req.DeleteUserReq;
-import com.nineSeven.user.model.req.GetUserInfoReq;
-import com.nineSeven.user.model.req.ImportUserReq;
-import com.nineSeven.user.model.req.ModifyUserInfoReq;
+import com.nineSeven.user.model.req.*;
 import com.nineSeven.user.model.resp.GetUserInfoResp;
 import com.nineSeven.user.model.resp.ImportUserResp;
 import com.nineSeven.user.service.ImUserService;
+import com.nineSeven.utils.CallbackService;
+import com.nineSeven.utils.MessageProducer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,15 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Autowired
     ImUserDataMapper imUserDataMapper;
+
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    CallbackService callbackService;
+
+    @Autowired
+    MessageProducer messageProducer;
 
     @Override
     public ResponseVO importUser(ImportUserReq req) {
@@ -153,18 +165,20 @@ public class ImUserServiceImpl implements ImUserService {
         update.setUserId(null);
         int update1 = imUserDataMapper.update(update, query);
         if (update1 == 1) {
-//            UserModifyPack pack = new UserModifyPack();
-//            BeanUtils.copyProperties(req,pack);
-//            messageProducer.sendToUser(req.getUserId(),req.getClientType(),req.getImei(),
-//                    UserEventCommand.USER_MODIFY,pack,req.getAppId());
-//
-//            if(appConfig.isModifyUserAfterCallback()){
-//                callbackService.callback(req.getAppId(),
-//                        Constants.CallbackCommand.ModifyUserAfter,
-//                        JSONObject.toJSONString(req));
-//            }
+            UserModifyPack pack = new UserModifyPack();
+            BeanUtils.copyProperties(req, pack);
+            messageProducer.sendToUser(req.getUserId(), req.getClientType(), req.getImei(), UserEventCommand.USER_MODIFY, pack, req.getAppId());
+
+            if(appConfig.isModifyUserAfterCallback()) {
+                callbackService.callback(req.getAppId(), Constants.CallbackCommand.ModifyUserAfter, JSONObject.toJSONString(req));
+            }
             return ResponseVO.successResponse();
         }
         throw new ApplicationException(UserErrorCode.MODIFY_USER_ERROR);
+    }
+
+    @Override
+    public ResponseVO login(LoginReq req) {
+        return ResponseVO.successResponse();
     }
 }

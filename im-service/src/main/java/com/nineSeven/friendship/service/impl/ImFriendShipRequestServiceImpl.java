@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.nineSeven.ResponseVO;
 import com.nineSeven.enums.ApproverFriendRequestStatusEnum;
 import com.nineSeven.enums.FriendShipErrorCode;
+import com.nineSeven.enums.command.FriendshipEventCommand;
 import com.nineSeven.exception.ApplicationException;
 import com.nineSeven.friendship.dao.ImFriendShipRequestEntity;
 import com.nineSeven.friendship.dao.mapper.ImFriendShipRequestMapper;
@@ -12,6 +13,9 @@ import com.nineSeven.friendship.model.req.FriendDto;
 import com.nineSeven.friendship.model.req.ReadFriendShipRequestReq;
 import com.nineSeven.friendship.service.ImFriendShipRequestService;
 import com.nineSeven.friendship.service.ImFriendShipService;
+import com.nineSeven.pack.friendship.ApproverFriendRequestPack;
+import com.nineSeven.pack.friendship.ReadAllFriendRequestPack;
+import com.nineSeven.utils.MessageProducer;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +31,9 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
 
     @Autowired
     ImFriendShipService imFriendShipService;
+
+    @Autowired
+    MessageProducer messageProducer;
 
     @Override
     public ResponseVO addFriendShipRequest(String fromId, FriendDto dto, Integer appId) {
@@ -62,6 +69,8 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
             imFriendShipRequestEntity.setCreateTime(System.currentTimeMillis());
             imFriendShipRequestMapper.updateById(imFriendShipRequestEntity);
         }
+
+        messageProducer.sendToUser(dto.getToId(), null, "", FriendshipEventCommand.FRIEND_REQUEST, imFriendShipRequestEntity, appId);
         return ResponseVO.successResponse();
     }
 
@@ -102,6 +111,13 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
                 return responseVO;
             }
         }
+
+        ApproverFriendRequestPack approverFriendRequestPack = new ApproverFriendRequestPack();
+        approverFriendRequestPack.setId(req.getId());
+//        approverFriendRequestPack.setSequence(seq);
+        approverFriendRequestPack.setStatus(req.getStatus());
+        messageProducer.sendToUser(imFriendShipRequestEntity.getToId(),req.getClientType(),req.getImei(), FriendshipEventCommand
+                .FRIEND_REQUEST_APPROVER,approverFriendRequestPack,req.getAppId());
         return ResponseVO.successResponse();
     }
 
@@ -129,12 +145,11 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
         imFriendShipRequestMapper.update(update, query);
 //        writeUserSeq.writeUserSeq(req.getAppId(),req.getOperater(),
 //                Constants.SeqConstants.FriendshipRequest,seq);
-//        //TCP通知
-//        ReadAllFriendRequestPack readAllFriendRequestPack = new ReadAllFriendRequestPack();
-//        readAllFriendRequestPack.setFromId(req.getFromId());
+        ReadAllFriendRequestPack readAllFriendRequestPack = new ReadAllFriendRequestPack();
+        readAllFriendRequestPack.setFromId(req.getFromId());
 //        readAllFriendRequestPack.setSequence(seq);
-//        messageProducer.sendToUser(req.getFromId(),req.getClientType(),req.getImei(),FriendshipEventCommand
-//                .FRIEND_REQUEST_READ,readAllFriendRequestPack,req.getAppId());
+        messageProducer.sendToUser(req.getFromId(),req.getClientType(),req.getImei(),FriendshipEventCommand
+                .FRIEND_REQUEST_READ,readAllFriendRequestPack,req.getAppId());
 
         return ResponseVO.successResponse();
     }

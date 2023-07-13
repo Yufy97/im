@@ -1,6 +1,7 @@
 package com.nineSeven.server;
 
 import com.nineSeven.WebSocketMessageDecoder;
+import com.nineSeven.WebSocketMessageEncoder;
 import com.nineSeven.config.BootStrapConfig;
 import com.nineSeven.handler.NettyServerHandler;
 import io.netty.bootstrap.ServerBootstrap;
@@ -58,6 +59,7 @@ public class ImWebSocketServer {
                          */
                         pipeline.addLast(new WebSocketServerProtocolHandler("/ws"));
                         pipeline.addLast(new WebSocketMessageDecoder());
+                        pipeline.addLast(new WebSocketMessageEncoder());
                         pipeline.addLast(new NettyServerHandler(config.getBrokerId()));
 
                     }

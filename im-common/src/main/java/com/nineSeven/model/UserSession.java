@@ -8,14 +8,9 @@ public class UserSession {
 
     private String userId;
 
-    /**
-     * 应用ID
-     */
+
     private Integer appId;
 
-    /**
-     * 端的标识
-     */
     private Integer clientType;
 
     //sdk 版本号
