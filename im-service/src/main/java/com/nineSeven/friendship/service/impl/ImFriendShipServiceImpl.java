@@ -212,7 +212,7 @@ public class ImFriendShipServiceImpl implements ImFriendShipService {
 
         ImFriendShipEntity imFriendShipEntity = imFriendShipMapper.selectOne(query);
         if(imFriendShipEntity == null) {
-            // todo 返回记录不存在
+            return ResponseVO.errorResponse(FriendShipErrorCode.FRIEND_REQUEST_IS_NOT_EXIST);
         }
         return ResponseVO.successResponse(imFriendShipEntity);
     }

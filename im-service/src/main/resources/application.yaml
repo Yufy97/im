@@ -5,7 +5,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: asdfghjkl123
-    url: jdbc:mysql://127.0.0.1:3306/im_core?serverTimezone=UTC&useSSL=false&characterEncoding=UTF8
+    url: jdbc:mysql://127.0.0.1:3306/im_core?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF8
 
   redis:
     host: 162.14.106.166
@@ -16,14 +16,14 @@ spring:
         max-idle: 100
         max-wait: 1000
         min-idle: 10
-    password: 2Fe+Co=Coffee
+    password: asdfghjkl123
   rabbitmq:
     host: 162.14.106.166
     port: 5672
     addresses: 162.14.106.166
     username: myf
     password: 123
-    #    virtual-host:
+    virtual-host: im
     listener:
       simple:
         concurrency: 5

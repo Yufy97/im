@@ -3,10 +3,6 @@ package com.nineSeven.user.dao;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
-/**
- * @author: Chackylee
- * @description: 数据库用户数据实体类
- **/
 
 @Data
 @TableName("im_user_data")

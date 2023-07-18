@@ -31,33 +31,32 @@ public class GateWayInterceptor implements HandlerInterceptor {
 //        if (1 == 1){
 //            return true;
 //        }
-
-        //获取appId 操作人 userSign
-        String appIdStr = request.getParameter("appId");
-        if(StringUtils.isBlank(appIdStr)){
-            resp(ResponseVO.errorResponse(GateWayErrorCode.APPID_NOT_EXIST),response);
-            return false;
-        }
-
-        String identifier = request.getParameter("identifier");
-        if(StringUtils.isBlank(identifier)){
-            resp(ResponseVO.errorResponse(GateWayErrorCode.OPERATER_NOT_EXIST),response);
-            return false;
-        }
-
-        String userSign = request.getParameter("userSign");
-        if(StringUtils.isBlank(userSign)){
-            resp(ResponseVO.errorResponse(GateWayErrorCode.USERSIGN_NOT_EXIST),response);
-            return false;
-        }
-
-        //签名和操作人和appid是否匹配
-        ApplicationExceptionEnum applicationExceptionEnum = identityCheck.checkUserSig(identifier, appIdStr, userSign);
-        if(applicationExceptionEnum != BaseErrorCode.SUCCESS){
-            resp(ResponseVO.errorResponse(applicationExceptionEnum),response);
-            return false;
-        }
-
+//
+//        //获取appId 操作人 userSign
+//        String appIdStr = request.getParameter("appId");
+//        if(StringUtils.isBlank(appIdStr)){
+//            resp(ResponseVO.errorResponse(GateWayErrorCode.APPID_NOT_EXIST),response);
+//            return false;
+//        }
+//
+//        String identifier = request.getParameter("identifier");
+//        if(StringUtils.isBlank(identifier)){
+//            resp(ResponseVO.errorResponse(GateWayErrorCode.OPERATER_NOT_EXIST),response);
+//            return false;
+//        }
+//
+//        String userSign = request.getParameter("userSign");
+//        if(StringUtils.isBlank(userSign)){
+//            resp(ResponseVO.errorResponse(GateWayErrorCode.USERSIGN_NOT_EXIST),response);
+//            return false;
+//        }
+//
+//        //签名和操作人和appid是否匹配
+//        ApplicationExceptionEnum applicationExceptionEnum = identityCheck.checkUserSig(identifier, appIdStr, userSign);
+//        if(applicationExceptionEnum != BaseErrorCode.SUCCESS){
+//            resp(ResponseVO.errorResponse(applicationExceptionEnum),response);
+//            return false;
+//        }
         return true;
     }
 

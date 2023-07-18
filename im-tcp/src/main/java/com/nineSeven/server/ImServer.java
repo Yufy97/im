@@ -47,7 +47,7 @@ public class ImServer {
                         pipeline.addLast(new MessageEncoder());
                         pipeline.addLast(new IdleStateHandler(0, 0, 1));
                         pipeline.addLast(new HeartBeatHandler(config.getHeartBeatTime()));
-                        pipeline.addLast(new NettyServerHandler(config.getBrokerId()));
+                        pipeline.addLast(new NettyServerHandler(config.getBrokerId(), config.getLogicUrl()));
                     }
                 }).bind(config.getTcpPort());
     }

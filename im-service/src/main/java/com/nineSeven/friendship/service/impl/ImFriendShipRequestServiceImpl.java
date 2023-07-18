@@ -116,8 +116,8 @@ public class ImFriendShipRequestServiceImpl implements ImFriendShipRequestServic
         approverFriendRequestPack.setId(req.getId());
 //        approverFriendRequestPack.setSequence(seq);
         approverFriendRequestPack.setStatus(req.getStatus());
-        messageProducer.sendToUser(imFriendShipRequestEntity.getToId(),req.getClientType(),req.getImei(), FriendshipEventCommand
-                .FRIEND_REQUEST_APPROVER,approverFriendRequestPack,req.getAppId());
+        messageProducer.sendToUser(imFriendShipRequestEntity.getToId(),req.getClientType(),req.getImei(),
+                FriendshipEventCommand.FRIEND_REQUEST_APPROVER,approverFriendRequestPack,req.getAppId());
         return ResponseVO.successResponse();
     }
 

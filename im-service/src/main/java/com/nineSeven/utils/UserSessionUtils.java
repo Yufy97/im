@@ -44,6 +44,4 @@ public class UserSessionUtils {
         Object o = stringRedisTemplate.opsForHash().get(userSessionKey, hashKey);
         return JSONObject.parseObject(o.toString(), UserSession.class);
     }
-
-
 }

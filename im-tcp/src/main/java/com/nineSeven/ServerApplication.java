@@ -42,9 +42,10 @@ public class ServerApplication {
     }
 
     public static void registerZK(BootStrapConfig config) {
+
         ZkClient zkClient = new ZkClient(config.getIm().getZkConfig().getZkAddr(), config.getIm().getZkConfig().getZkConnectTimeOut());
         ZKit zKit = new ZKit(zkClient);
-        RegistryZK registryZK = new RegistryZK(zKit, "127.0.0.1", config.getIm());
+        RegistryZK registryZK = new RegistryZK(zKit, "localhost", config.getIm());
         Thread thread = new Thread(registryZK);
         thread.start();
     }

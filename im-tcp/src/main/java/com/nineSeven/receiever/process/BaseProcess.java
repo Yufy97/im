@@ -10,8 +10,7 @@ public abstract class BaseProcess {
 
     public void process(MessagePack messagePack){
         processBefore();
-        NioSocketChannel channel = SessionSocketHolder.get(messagePack.getAppId(), messagePack.getToId(), messagePack.getClientType(),
-                messagePack.getImei());
+        NioSocketChannel channel = SessionSocketHolder.get(messagePack.getAppId(), messagePack.getToId(), messagePack.getClientType(), messagePack.getImei());
         if(channel != null){
             channel.writeAndFlush(messagePack);
         }

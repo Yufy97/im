@@ -1,7 +1,6 @@
 package com.nineSeven.receiever;
 
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.JSONPObject;
 import com.nineSeven.constant.Constants;
 import com.nineSeven.pack.MessagePack;
 import com.nineSeven.receiever.process.BaseProcess;

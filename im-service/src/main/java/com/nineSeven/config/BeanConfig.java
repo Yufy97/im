@@ -5,6 +5,7 @@ import com.nineSeven.enums.RouteHashMethodEnum;
 import com.nineSeven.route.RouteHandle;
 import com.nineSeven.route.algorithm.consistentHash.AbstractConsistentHash;
 import com.nineSeven.route.algorithm.random.RandomHandle;
+import com.nineSeven.utils.SnowflakeIdWorker;
 import org.I0Itec.zkclient.ZkClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -39,5 +40,15 @@ public class BeanConfig {
     @Bean
     public ZkClient buildZKClient() {
         return new ZkClient(appConfig.getZkAddr(), appConfig.getZkConnectTimeOut());
+    }
+
+    @Bean
+    public EasySqlInjector easySqlInjector() {
+        return new EasySqlInjector();
+    }
+
+    @Bean
+    public SnowflakeIdWorker buildSnowFlakeSqe() {
+        return new SnowflakeIdWorker(0);
     }
 }

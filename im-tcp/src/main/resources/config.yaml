@@ -6,6 +6,7 @@ im:
   heartBeatTime: 3000
   brokerId: 1000    #服务节点id
   loginModel: 1
+  logicUrl: http://localhost:8000/v1
 
   redis:
     mode: single

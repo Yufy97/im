@@ -33,6 +33,8 @@ public class BootStrapConfig {
         private Integer brokerId;
 
         private Integer loginModel;
+
+        private String logicUrl;
     }
 
     @Data
