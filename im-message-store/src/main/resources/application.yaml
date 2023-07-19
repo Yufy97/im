@@ -1,0 +1,55 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: asdfghjkl123
+    url: jdbc:mysql://127.0.0.1:3306/im_core?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC&characterEncoding=UTF8
+
+  redis:
+    host: 162.14.106.166
+    port: 6379
+    jedis:
+      pool:
+        max-active: 100
+        max-idle: 100
+        max-wait: 1000
+        min-idle: 10
+    password: asdfghjkl123
+  rabbitmq:
+    host: 162.14.106.166
+    port: 5672
+    addresses: 162.14.106.166
+    username: myf
+    password: 123
+    virtual-host: im
+    listener:
+      simple:
+        concurrency: 5
+        max-concurrency: 10
+        acknowledge-mode: MANUAL
+        prefetch: 1
+#    publisher-confirms: true
+    publisher-returns: true
+    template:
+      mandatory: true
+    cache:
+      connection:
+        mode: channel
+      channel:
+        size: 36
+        checkout-timeout: 0
+
+
+logging:
+  config: classpath:logback-spring.xml
+
+mybatis-plus:
+
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath*:mapper/*.xml
+  global-config:
+    db-config:
+      update-strategy: NOT_EMPTY

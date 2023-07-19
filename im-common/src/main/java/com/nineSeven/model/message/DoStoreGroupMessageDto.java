@@ -3,9 +3,10 @@ package com.nineSeven.model.message;
 import lombok.Data;
 
 @Data
-public class DoStoreP2PMessageDto {
+public class DoStoreGroupMessageDto {
 
-    private MessageContent messageContent;
+    private GroupChatMessageContent groupChatMessageContent;
 
     private ImMessageBody messageBody;
+
 }

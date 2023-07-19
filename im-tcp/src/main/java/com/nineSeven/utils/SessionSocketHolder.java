@@ -97,12 +97,12 @@ public class SessionSocketHolder {
         //修改redis的缓存
         RedissonClient redissonClient = RedisManager.getRedissonClient();
         RMap<String, String> map = redissonClient.getMap(appId + Constants.RedisConstants.UserSessionConstants +userId);
-        String session = map.get(clientType.toString());
+        String session = map.get(clientType + ":" + imei);
 
         if(!StringUtils.isBlank(session)) {
             UserSession userSession = JSONObject.parseObject(session, UserSession.class);
             userSession.setConnectState(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
-            map.put(clientType.toString() + ":" + imei, JSONObject.toJSONString(userSession));
+            map.put(clientType + ":" + imei, JSONObject.toJSONString(userSession));
         }
 
         //关闭管道

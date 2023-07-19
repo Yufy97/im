@@ -1,4 +1,4 @@
-package com.nineSeven.dao;
+package com.nineSeven.store.dao;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;

@@ -95,7 +95,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             SessionSocketHolder.removeUserSession((NioSocketChannel) ctx.channel());
         } else if (command == SystemCommand.PING.getCommand()) {
             ctx.channel().attr(AttributeKey.valueOf(Constants.ReadTime)).set(System.currentTimeMillis());
-        } else {
+        } else if(command == MessageCommand.MSG_P2P.getCommand() || command == GroupEventCommand.MSG_GROUP.getCommand()){
             String toId = "";
             CheckSendMessageReq req = new CheckSendMessageReq();
             req.setAppId(msg.getMessageHeader().getAppId());
@@ -128,6 +128,14 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
                 ack.setCommand(ackCommand);
                 ctx.channel().writeAndFlush(ack);
             }
+        } else {
+            MqMessageProducer.sendMessage(msg,command);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        SessionSocketHolder.offlineUserSession((NioSocketChannel) ctx.channel());
+        ctx.close();
     }
 }

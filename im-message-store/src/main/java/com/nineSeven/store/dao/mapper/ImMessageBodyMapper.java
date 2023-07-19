@@ -1,7 +1,7 @@
-package com.nineSeven.dao.mapper;
+package com.nineSeven.store.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.nineSeven.dao.ImMessageBodyEntity;
+import com.nineSeven.store.dao.ImMessageBodyEntity;
 import org.springframework.stereotype.Repository;
 
 @Repository

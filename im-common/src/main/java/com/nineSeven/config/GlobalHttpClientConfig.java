@@ -38,11 +38,7 @@ public class GlobalHttpClientConfig {
 		return manager;
 	}
 
-	/**
-	 * 实例化连接池，设置连接池管理器。 这里需要以参数形式注入上面实例化的连接池管理器
-	 * 
-	 * @Qualifier 指定bean标签进行注入
-	 */
+
 	@Bean(name = "httpClientBuilder")
 	public HttpClientBuilder getHttpClientBuilder(@Qualifier("httpClientConnectionManager") PoolingHttpClientConnectionManager httpClientConnectionManager) {
 

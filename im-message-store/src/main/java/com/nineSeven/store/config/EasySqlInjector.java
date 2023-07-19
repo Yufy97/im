@@ -1,4 +1,4 @@
-package com.nineSeven.config;
+package com.nineSeven.store.config;
 
 import com.baomidou.mybatisplus.core.injector.AbstractMethod;
 import com.baomidou.mybatisplus.core.injector.DefaultSqlInjector;
