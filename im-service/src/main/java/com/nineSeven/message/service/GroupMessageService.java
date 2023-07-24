@@ -7,9 +7,11 @@ import com.nineSeven.enums.command.MessageCommand;
 import com.nineSeven.group.service.ImGroupMemberService;
 import com.nineSeven.model.message.GroupChatMessageContent;
 import com.nineSeven.model.message.MessageContent;
+import com.nineSeven.model.message.OfflineMessageContent;
 import com.nineSeven.pack.message.ChatMessageAck;
 import com.nineSeven.seq.RedisSeq;
 import com.nineSeven.utils.MessageProducer;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -51,6 +53,10 @@ public class GroupMessageService {
     }
 
     public void process(GroupChatMessageContent messageContent) {
+
+        messageContent.setMemberId(imGroupMemberService.getGroupMemberId(messageContent.getGroupId(), messageContent.getAppId()));
+
+
         GroupChatMessageContent messageFromMessageIdCache = messageStoreService.getMessageFromMessageIdCache(messageContent.getAppId(), messageContent.getMessageId(), GroupChatMessageContent.class);
         if (messageFromMessageIdCache != null) {
             threadPoolExecutor.execute(() -> {
@@ -65,7 +71,10 @@ public class GroupMessageService {
         threadPoolExecutor.execute(() -> {
             messageStoreService.storeGroupMessage(messageContent);
 
-            messageContent.setMemberId(imGroupMemberService.getGroupMemberId(messageContent.getGroupId(), messageContent.getAppId()));
+            OfflineMessageContent content = new OfflineMessageContent();
+            BeanUtils.copyProperties(messageContent, content);
+            content.setToId(messageContent.getGroupId());
+            messageStoreService.storeGroupOfflineMessage(content, messageContent.getMemberId());
 
             ack(messageContent, ResponseVO.successResponse());
             syncToSender(messageContent);
@@ -83,7 +92,7 @@ public class GroupMessageService {
     }
 
     private void dispatchMessage(GroupChatMessageContent messageContent) {
-        imGroupMemberService.getGroupMemberId(messageContent.getGroupId(), messageContent.getAppId()).forEach(groupMemberId -> {
+        messageContent.getMemberId().forEach(groupMemberId -> {
             if (groupMemberId.equals(messageContent.getFromId())) {
                 messageProducer.sendToUser(groupMemberId, GroupEventCommand.MSG_GROUP, messageContent, messageContent.getAppId());
             }

@@ -2,9 +2,11 @@ package com.nineSeven.message.service;
 
 import com.nineSeven.ResponseVO;
 import com.nineSeven.constant.Constants;
+import com.nineSeven.enums.ConversationTypeEnum;
 import com.nineSeven.enums.command.MessageCommand;
 import com.nineSeven.model.ClientInfo;
 import com.nineSeven.model.message.MessageContent;
+import com.nineSeven.model.message.OfflineMessageContent;
 import com.nineSeven.pack.message.ChatMessageAck;
 import com.nineSeven.pack.message.MessageReceiveServerAckPack;
 import com.nineSeven.seq.RedisSeq;
@@ -12,6 +14,7 @@ import com.nineSeven.utils.ConversationIdGenerate;
 import com.nineSeven.utils.MessageProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -71,6 +74,13 @@ public class P2PMessageService {
                     Constants.SeqConstants.Message + ":" + ConversationIdGenerate.generateP2PId(messageContent.getFromId(), messageContent.getToId())));
             //消息持久化
             messageStoreService.storeP2PMessage(messageContent);
+
+            //离线消息存储
+            OfflineMessageContent offlineMessageContent = new OfflineMessageContent();
+            BeanUtils.copyProperties(messageContent,offlineMessageContent);
+            offlineMessageContent.setConversationType(ConversationTypeEnum.P2P.getCode());
+            messageStoreService.storeOfflineMessage(offlineMessageContent);
+
             //回复确认包
             ack(messageContent, ResponseVO.successResponse());
             //同步发送者其他端

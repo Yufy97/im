@@ -2,10 +2,13 @@ package com.nineSeven.group.mq;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.nineSeven.constant.Constants;
 import com.nineSeven.enums.command.GroupEventCommand;
 import com.nineSeven.message.service.GroupMessageService;
+import com.nineSeven.message.service.MessageSyncService;
 import com.nineSeven.model.message.GroupChatMessageContent;
+import com.nineSeven.model.message.MessageReadedContent;
 import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +34,8 @@ public class GroupChatOperateReceiver {
     @Autowired
     GroupMessageService groupMessageService;
 
-//    @Autowired
-//    MessageSyncService messageSyncService;
+    @Autowired
+    MessageSyncService messageSyncService;
 
     @RabbitListener(bindings = @QueueBinding(value = @Queue(value = Constants.RabbitConstants.Im2GroupService,durable = "true"),
                  exchange = @Exchange(value = Constants.RabbitConstants.Im2GroupService)),concurrency = "1")
@@ -47,8 +50,8 @@ public class GroupChatOperateReceiver {
                 GroupChatMessageContent messageContent = jsonObject.toJavaObject(GroupChatMessageContent.class);
                 groupMessageService.process(messageContent);
             }else if (command.equals(GroupEventCommand.MSG_GROUP_READED.getCommand())) {
-//                MessageReadedContent messageReaded = JSON.parseObject(msg, new TypeReference<MessageReadedContent>() {}.getType());
-//                messageSyncService.groupReadMark(messageReaded);
+                MessageReadedContent messageReaded = JSON.parseObject(msg, MessageReadedContent.class);
+                messageSyncService.groupReadMark(messageReaded);
             }
             channel.basicAck(deliveryTag, false);
         }catch (Exception e){

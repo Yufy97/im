@@ -3,6 +3,7 @@ package com.nineSeven.friendship.controller;
 import com.nineSeven.ResponseVO;
 import com.nineSeven.friendship.model.req.*;
 import com.nineSeven.friendship.service.ImFriendShipService;
+import com.nineSeven.model.SyncReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -83,4 +84,9 @@ public class ImFriendShipController {
         return imFriendShipService.deleteBlack(req);
     }
 
+    @RequestMapping("/syncFriendshipList")
+    public ResponseVO syncFriendshipList(@RequestBody @Validated SyncReq req, Integer appId){
+        req.setAppId(appId);
+        return imFriendShipService.syncFriendshipList(req);
+    }
 }

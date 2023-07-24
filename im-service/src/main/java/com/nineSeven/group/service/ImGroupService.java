@@ -4,6 +4,7 @@ package com.nineSeven.group.service;
 import com.nineSeven.ResponseVO;
 import com.nineSeven.group.dao.ImGroupEntity;
 import com.nineSeven.group.model.req.*;
+import com.nineSeven.model.SyncReq;
 
 public interface ImGroupService {
 
@@ -21,11 +22,13 @@ public interface ImGroupService {
 
     ResponseVO<ImGroupEntity> getGroup(String groupId, Integer appId);
 
-    public ResponseVO getGroup(GetGroupReq req);
+    ResponseVO getGroup(GetGroupReq req);
 
-    public ResponseVO muteGroup(MuteGroupReq req);
+    ResponseVO muteGroup(MuteGroupReq req);
 
 //    ResponseVO syncJoinedGroupList(SyncReq req);
 
     Long getUserGroupMaxSeq(String userId, Integer appId);
+
+    ResponseVO syncJoinedGroupList(SyncReq req);
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.nineSeven.constant.Constants;
 import com.nineSeven.enums.command.CommandType;
 import com.nineSeven.pojo.Message;
+import com.nineSeven.pojo.MessageHeader;
 import com.nineSeven.utils.MqFactory;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +17,14 @@ public class MqMessageProducer {
         Channel channel;
         String exchangeName = null;
         CommandType commandType = CommandType.getCommandType(String.valueOf(command).substring(0, 1));
-        if(commandType == CommandType.MESSAGE) {
+        if(commandType == CommandType.MESSAGE){
             exchangeName = Constants.RabbitConstants.Im2MessageService;
-        }else if(commandType == CommandType.GROUP) {
+        }else if(commandType == CommandType.GROUP){
             exchangeName = Constants.RabbitConstants.Im2GroupService;
+        }else if(commandType == CommandType.FRIEND){
+            exchangeName = Constants.RabbitConstants.Im2FriendshipService;
+        }else if(commandType == CommandType.USER){
+            exchangeName = Constants.RabbitConstants.Im2UserService;
         }
         try {
             channel = MqFactory.getChannel(exchangeName);   //channelName与exchangeName同名
@@ -28,6 +33,32 @@ public class MqMessageProducer {
             json.put("clientType",message.getMessageHeader().getClientType());
             json.put("imei",message.getMessageHeader().getImei());
             json.put("appId",message.getMessageHeader().getAppId());
+            channel.basicPublish(exchangeName, "", null, json.toJSONString().getBytes());
+        }catch (Exception e) {
+            log.error("发送消息出现异常：{}", e.getMessage());
+        }
+    }
+
+    public static void sendMessage(Object message, MessageHeader header, Integer command) {
+        Channel channel;
+        String exchangeName = null;
+        CommandType commandType = CommandType.getCommandType(String.valueOf(command).substring(0, 1));
+        if(commandType == CommandType.MESSAGE){
+            exchangeName = Constants.RabbitConstants.Im2MessageService;
+        }else if(commandType == CommandType.GROUP){
+            exchangeName = Constants.RabbitConstants.Im2GroupService;
+        }else if(commandType == CommandType.FRIEND){
+            exchangeName = Constants.RabbitConstants.Im2FriendshipService;
+        }else if(commandType == CommandType.USER){
+            exchangeName = Constants.RabbitConstants.Im2UserService;
+        }
+        try {
+            channel = MqFactory.getChannel(exchangeName);   //channelName与exchangeName同名
+            JSONObject json = (JSONObject) JSON.toJSON(message);
+            json.put("command",command);
+            json.put("clientType",header.getClientType());
+            json.put("imei",header.getImei());
+            json.put("appId",header.getAppId());
             channel.basicPublish(exchangeName, "", null, json.toJSONString().getBytes());
         }catch (Exception e) {
             log.error("发送消息出现异常：{}", e.getMessage());

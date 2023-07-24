@@ -8,6 +8,7 @@ import com.nineSeven.message.service.MessageStoreService;
 import com.nineSeven.message.service.MessageSyncService;
 import com.nineSeven.message.service.P2PMessageService;
 import com.nineSeven.model.message.MessageContent;
+import com.nineSeven.model.message.MessageReadedContent;
 import com.nineSeven.model.message.MessageReceiveAckContent;
 import com.rabbitmq.client.Channel;
 import org.slf4j.Logger;
@@ -50,6 +51,9 @@ public class ChatOperateReceiver {
                 p2PMessageService.process(messageContent);
             } else if (command.equals(MessageCommand.MSG_RECIVE_ACK.getCommand())) {
                 messageSyncService.receiveMark(jsonObject.toJavaObject(MessageReceiveAckContent.class));
+            } else if (command.equals(MessageCommand.MSG_READED.getCommand())) {
+                MessageReadedContent messageReadedContent = jsonObject.toJavaObject(MessageReadedContent.class);
+                messageSyncService.readMark(messageReadedContent);
             }
             channel.basicAck(deliveryTag, false);
         } catch (Exception e) {

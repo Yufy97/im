@@ -19,7 +19,7 @@ public class ImFriendShipEntity {
 
     @TableField(value = "to_id")
     private String toId;
-    /** 备注*/
+
     private String remark;
 
     /** 状态 1正常 2删除*/

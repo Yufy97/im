@@ -469,4 +469,9 @@ public class ImGroupMemberServiceImpl implements ImGroupMemberService {
     public List<GroupMemberDto> getGroupManager(String groupId, Integer appId) {
         return imGroupMemberMapper.getGroupManager(groupId, appId);
     }
+
+    @Override
+    public ResponseVO<Collection<String>> syncMemberJoinedGroup(String operater, Integer appId) {
+        return ResponseVO.successResponse(imGroupMemberMapper.syncJoinedGroupId(appId,operater,GroupMemberRoleEnum.LEAVE.getCode()));
+    }
 }

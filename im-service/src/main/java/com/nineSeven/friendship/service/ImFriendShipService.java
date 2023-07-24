@@ -3,7 +3,10 @@ package com.nineSeven.friendship.service;
 import com.nineSeven.ResponseVO;
 import com.nineSeven.friendship.model.req.*;
 import com.nineSeven.model.RequestBase;
+import com.nineSeven.model.SyncReq;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 public interface ImFriendShipService {
     ResponseVO importFriendShip(ImportFriendShipReq req);
@@ -31,4 +34,8 @@ public interface ImFriendShipService {
 
     @Transactional
     ResponseVO doAddFriend(RequestBase req, String fromId, FriendDto dto, Integer appId);
+
+    ResponseVO syncFriendshipList(SyncReq req);
+
+    List<String> getAllFriendId(Integer appId, String userId);
 }

@@ -1,25 +1,21 @@
 package com.nineSeven.message.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.nineSeven.config.AppConfig;
 import com.nineSeven.constant.Constants;
+import com.nineSeven.conversation.service.ConversationService;
+import com.nineSeven.enums.ConversationTypeEnum;
 import com.nineSeven.enums.DelFlagEnum;
-import com.nineSeven.message.dao.ImGroupMessageHistoryEntity;
-import com.nineSeven.message.dao.ImMessageBodyEntity;
-import com.nineSeven.message.dao.ImMessageHistoryEntity;
-import com.nineSeven.message.dao.mapper.ImGroupMessageHistoryMapper;
-import com.nineSeven.message.dao.mapper.ImMessageBodyMapper;
-import com.nineSeven.message.dao.mapper.ImMessageHistoryMapper;
 import com.nineSeven.model.message.*;
 import com.nineSeven.utils.SnowflakeIdWorker;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -31,6 +27,12 @@ public class MessageStoreService {
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    AppConfig appConfig;
+
+    @Autowired
+    ConversationService conversationService;
 
     @Transactional
     public void storeP2PMessage(MessageContent messageContent) {
@@ -83,5 +85,42 @@ public class MessageStoreService {
             return null;
         }
         return JSONObject.parseObject(msg, clazz);
+    }
+
+    public void storeOfflineMessage(OfflineMessageContent content) {
+        String fromKey = content.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + content.getFromId();
+        String toKey = content.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + content.getToId();
+
+        ZSetOperations<String, String> zSet = stringRedisTemplate.opsForZSet();
+        if(zSet.zCard(fromKey) > appConfig.getOfflineMessageCount()) {
+            zSet.removeRange(fromKey, 0, 0);
+        }
+        content.setConversationId(conversationService.convertConversationId(ConversationTypeEnum.P2P.getCode(), content.getFromId(), content.getToId()));
+        zSet.add(fromKey, JSONObject.toJSONString(content), content.getMessageKey());
+
+        if(zSet.zCard(toKey) > appConfig.getOfflineMessageCount()) {
+            zSet.removeRange(fromKey, 0, 0);
+        }
+        content.setConversationId(conversationService.convertConversationId(ConversationTypeEnum.P2P.getCode(), content.getToId(), content.getFromId()));
+        zSet.add(toKey, JSONObject.toJSONString(content), content.getMessageKey());
+    }
+
+    public void storeGroupOfflineMessage(OfflineMessageContent offlineMessage, List<String> memberIds){
+
+        ZSetOperations<String, String> operations = stringRedisTemplate.opsForZSet();
+        //判断 队列中的数据是否超过设定值
+        offlineMessage.setConversationType(ConversationTypeEnum.GROUP.getCode());
+
+        for (String memberId : memberIds) {
+            // 找到toId的队列
+            String toKey = offlineMessage.getAppId() + ":" + Constants.RedisConstants.OfflineMessage + ":" + memberId;
+            offlineMessage.setConversationId(conversationService.convertConversationId(ConversationTypeEnum.GROUP.getCode(), memberId, offlineMessage.getToId()));
+            if (operations.zCard(toKey) > appConfig.getOfflineMessageCount()) {
+                operations.removeRange(toKey, 0, 0);
+            }
+            // 插入 数据 根据messageKey 作为分值
+            operations.add(toKey, JSONObject.toJSONString(offlineMessage),
+                    offlineMessage.getMessageKey());
+        }
     }
 }

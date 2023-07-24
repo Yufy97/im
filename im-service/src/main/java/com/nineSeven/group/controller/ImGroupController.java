@@ -3,6 +3,7 @@ package com.nineSeven.group.controller;
 import com.nineSeven.ResponseVO;
 import com.nineSeven.group.model.req.*;
 import com.nineSeven.group.service.ImGroupService;
+import com.nineSeven.model.SyncReq;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -69,5 +70,11 @@ public class ImGroupController {
         req.setAppId(appId);
         req.setOperater(identifier);
         return imGroupService.muteGroup(req);
+    }
+
+    @RequestMapping("/syncJoinedGroup")
+    public ResponseVO syncJoinedGroup(@RequestBody @Validated SyncReq req, Integer appId, String identifier)  {
+        req.setAppId(appId);
+        return imGroupService.syncJoinedGroupList(req);
     }
 }

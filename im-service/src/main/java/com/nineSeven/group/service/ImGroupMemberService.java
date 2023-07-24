@@ -33,4 +33,6 @@ public interface ImGroupMemberService {
     ResponseVO speak(SpeakMemberReq req);
 
     List<GroupMemberDto> getGroupManager(String groupId, Integer appId);
+
+    ResponseVO<Collection<String>> syncMemberJoinedGroup(String userId, Integer appId);
 }

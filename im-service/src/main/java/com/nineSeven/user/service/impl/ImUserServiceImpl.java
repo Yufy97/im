@@ -9,6 +9,7 @@ import com.nineSeven.enums.DelFlagEnum;
 import com.nineSeven.enums.UserErrorCode;
 import com.nineSeven.enums.command.UserEventCommand;
 import com.nineSeven.exception.ApplicationException;
+import com.nineSeven.group.service.ImGroupService;
 import com.nineSeven.pack.user.UserModifyPack;
 import com.nineSeven.user.dao.ImUserDataEntity;
 import com.nineSeven.user.dao.mapper.ImUserDataMapper;
@@ -20,12 +21,14 @@ import com.nineSeven.utils.CallbackService;
 import com.nineSeven.utils.MessageProducer;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ImUserServiceImpl implements ImUserService {
@@ -41,6 +44,12 @@ public class ImUserServiceImpl implements ImUserService {
 
     @Autowired
     MessageProducer messageProducer;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    ImGroupService imGroupService;
 
     @Override
     public ResponseVO importUser(ImportUserReq req) {
@@ -169,7 +178,7 @@ public class ImUserServiceImpl implements ImUserService {
             BeanUtils.copyProperties(req, pack);
             messageProducer.sendToUser(req.getUserId(), req.getClientType(), req.getImei(), UserEventCommand.USER_MODIFY, pack, req.getAppId());
 
-            if(appConfig.isModifyUserAfterCallback()) {
+            if (appConfig.isModifyUserAfterCallback()) {
                 callbackService.callback(req.getAppId(), Constants.CallbackCommand.ModifyUserAfter, JSONObject.toJSONString(req));
             }
             return ResponseVO.successResponse();
@@ -180,5 +189,13 @@ public class ImUserServiceImpl implements ImUserService {
     @Override
     public ResponseVO login(LoginReq req) {
         return ResponseVO.successResponse();
+    }
+
+    @Override
+    public ResponseVO getUserSequence(GetUserSequenceReq req) {
+        Map<Object, Object> map = stringRedisTemplate.opsForHash().entries(req.getAppId() + ":" + Constants.RedisConstants.SeqPrefix + ":" + req.getUserId());
+        Long groupSeq = imGroupService.getUserGroupMaxSeq(req.getUserId(), req.getAppId());
+        map.put(Constants.SeqConstants.Group, groupSeq);
+        return ResponseVO.successResponse(map);
     }
 }

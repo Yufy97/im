@@ -9,6 +9,7 @@ import com.nineSeven.enums.ImConnectStatusEnum;
 import com.nineSeven.enums.command.GroupEventCommand;
 import com.nineSeven.enums.command.MessageCommand;
 import com.nineSeven.enums.command.SystemCommand;
+import com.nineSeven.enums.command.UserEventCommand;
 import com.nineSeven.feign.FeignMessageService;
 import com.nineSeven.model.UserClientDto;
 import com.nineSeven.model.UserSession;
@@ -16,6 +17,8 @@ import com.nineSeven.model.message.CheckSendMessageReq;
 import com.nineSeven.pack.LoginPack;
 import com.nineSeven.pack.MessagePack;
 import com.nineSeven.pack.message.ChatMessageAck;
+import com.nineSeven.pack.user.LoginAckPack;
+import com.nineSeven.pack.user.UserStatusChangeNotifyPack;
 import com.nineSeven.pojo.Message;
 import com.nineSeven.publish.MqMessageProducer;
 import com.nineSeven.redis.RedisManager;
@@ -90,7 +93,20 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<Message> {
             }
             RMap<String, String> map = redissonClient.getMap(msg.getMessageHeader().getAppId() + Constants.RedisConstants.UserSessionConstants + loginPack.getUserId());
             map.put(msg.getMessageHeader().getClientType() + ":" + msg.getMessageHeader().getImei(), JSONObject.toJSONString(userSession));
+            
 
+            UserStatusChangeNotifyPack statusPack = new UserStatusChangeNotifyPack();
+            statusPack.setAppId(msg.getMessageHeader().getAppId());
+            statusPack.setUserId(loginPack.getUserId());
+            statusPack.setStatus(ImConnectStatusEnum.ONLINE_STATUS.getCode());
+            MqMessageProducer.sendMessage(statusPack, msg.getMessageHeader(), UserEventCommand.USER_ONLINE_STATUS_CHANGE.getCommand());
+
+            MessagePack<LoginAckPack> loginSuccess = new MessagePack<>();
+            loginSuccess.setCommand(SystemCommand.LOGINACK.getCommand());
+            loginSuccess.setData(new LoginAckPack(loginPack.getUserId()));
+            loginSuccess.setImei(msg.getMessageHeader().getImei());
+            loginSuccess.setAppId(msg.getMessageHeader().getAppId());
+            ctx.channel().writeAndFlush(loginSuccess);
         } else if (command == SystemCommand.LOGOUT.getCommand()) {
             SessionSocketHolder.removeUserSession((NioSocketChannel) ctx.channel());
         } else if (command == SystemCommand.PING.getCommand()) {

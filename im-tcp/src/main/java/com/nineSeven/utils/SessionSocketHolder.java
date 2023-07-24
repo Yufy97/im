@@ -3,8 +3,12 @@ package com.nineSeven.utils;
 import com.alibaba.fastjson.JSONObject;
 import com.nineSeven.constant.Constants;
 import com.nineSeven.enums.ImConnectStatusEnum;
+import com.nineSeven.enums.command.UserEventCommand;
 import com.nineSeven.model.UserClientDto;
 import com.nineSeven.model.UserSession;
+import com.nineSeven.pack.user.UserStatusChangeNotifyPack;
+import com.nineSeven.pojo.MessageHeader;
+import com.nineSeven.publish.MqMessageProducer;
 import com.nineSeven.redis.RedisManager;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
@@ -81,6 +85,16 @@ public class SessionSocketHolder {
         RMap<String, String> map = redissonClient.getMap(appId + Constants.RedisConstants.UserSessionConstants +userId);
         map.remove(clientType + ":" + imei);
 
+        UserStatusChangeNotifyPack statusPack = new UserStatusChangeNotifyPack();
+        statusPack.setAppId(appId);
+        statusPack.setUserId(userId);
+        statusPack.setStatus(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setAppId(appId);
+        messageHeader.setImei(imei);
+        messageHeader.setClientType(clientType);
+        MqMessageProducer.sendMessage(statusPack, messageHeader, UserEventCommand.USER_ONLINE_STATUS_CHANGE.getCommand());
+
         //关闭管道
         nioSocketChannel.close();
     }
@@ -104,6 +118,16 @@ public class SessionSocketHolder {
             userSession.setConnectState(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
             map.put(clientType + ":" + imei, JSONObject.toJSONString(userSession));
         }
+
+        UserStatusChangeNotifyPack statusPack = new UserStatusChangeNotifyPack();
+        statusPack.setAppId(appId);
+        statusPack.setUserId(userId);
+        statusPack.setStatus(ImConnectStatusEnum.OFFLINE_STATUS.getCode());
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setAppId(appId);
+        messageHeader.setImei(imei);
+        messageHeader.setClientType(clientType);
+        MqMessageProducer.sendMessage(statusPack, messageHeader, UserEventCommand.USER_ONLINE_STATUS_CHANGE.getCommand());
 
         //关闭管道
         nioSocketChannel.close();

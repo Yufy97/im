@@ -6,6 +6,7 @@ import com.nineSeven.ResponseVO;
 import com.nineSeven.route.RouteHandle;
 import com.nineSeven.route.RouteInfo;
 import com.nineSeven.user.model.req.DeleteUserReq;
+import com.nineSeven.user.model.req.GetUserSequenceReq;
 import com.nineSeven.user.model.req.ImportUserReq;
 import com.nineSeven.user.model.req.LoginReq;
 import com.nineSeven.user.service.ImUserService;
@@ -65,4 +66,9 @@ public class ImUserController {
         return imUserService.deleteUser(req);
     }
 
+    @RequestMapping("/getUserSequence")
+    public ResponseVO getUserSequence(@RequestBody @Validated GetUserSequenceReq req, Integer appId) {
+        req.setAppId(appId);
+        return imUserService.getUserSequence(req);
+    }
 }
